@@ -1,5 +1,8 @@
 *.class
 
+#private
+*.propertis
+
 #package file
 *.war
 *.ear
