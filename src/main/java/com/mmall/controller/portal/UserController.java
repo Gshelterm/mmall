@@ -1,16 +1,22 @@
 package com.mmall.controller.portal;
 
 import com.mmall.common.Const;
+import com.mmall.common.RedisPool;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisPoolUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -28,11 +34,20 @@ public class UserController {
      */
     @RequestMapping(value = "login.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<User> login(String username, String password, HttpSession session) {
-        // service -> dao
+    public ServerResponse<User> login(String username, String password, HttpSession session,
+                                      HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         ServerResponse<User> serverResponse = userService.login(username, password);
         if (serverResponse.isSuccess()) {
-            session.setAttribute(Const.CURRENT_USER, serverResponse.getData());
+
+            CookieUtil.writeLoginToken(httpServletResponse, session.getId());
+            CookieUtil.readLoginToken(httpServletRequest);
+            CookieUtil.deleteLoginToken(httpServletRequest, httpServletResponse);
+            // session.getId() :CAA02D1EF6F64A0B2B409D7904E6A621 ==》 登录后浏览器请求JessionId/cookie：CAA02D1EF6F64A0B2B409D7904E6A621
+            // Redis缓存登录用户信息
+            RedisPoolUtil.setex(session.getId(), JsonUtil.objectToString(serverResponse.getData()),
+                    Const.RedisCacheExTime.REDIS_SESSION_EXTIME);
+
+            // session.setAttribute(Const.CURRENT_USER, serverResponse.getData());
         }
         return serverResponse;
     }
