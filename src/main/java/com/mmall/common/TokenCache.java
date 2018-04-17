@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class TokenCache {
 
     private static Logger logger = LoggerFactory.getLogger(TokenCache.class);
 
-    public static final String TOKEN_PREFIX = "token_";
 
     // 超过max则使用LRU算法
     private static LoadingCache<String, String> localCache =
