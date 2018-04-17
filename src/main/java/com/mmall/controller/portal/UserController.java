@@ -40,8 +40,9 @@ public class UserController {
         if (serverResponse.isSuccess()) {
 
             CookieUtil.writeLoginToken(httpServletResponse, session.getId());
-            CookieUtil.readLoginToken(httpServletRequest);
-            CookieUtil.deleteLoginToken(httpServletRequest, httpServletResponse);
+            //CookieUtil.readLoginToken(httpServletRequest);
+            //CookieUtil.deleteLoginToken(httpServletRequest, httpServletResponse);
+
             // session.getId() :CAA02D1EF6F64A0B2B409D7904E6A621 ==》 登录后浏览器请求JessionId/cookie：CAA02D1EF6F64A0B2B409D7904E6A621
             // Redis缓存登录用户信息
             RedisPoolUtil.setex(session.getId(), JsonUtil.objectToString(serverResponse.getData()),

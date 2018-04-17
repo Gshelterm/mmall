@@ -9,13 +9,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 public class CookieUtil {
-    public  final static String COOKIE_DOMAIN = "gimooc.com";  // 写在一级域名下 // todo 修改
+    public  final static String COOKIE_DOMAIN = "gimooc.com";  // 写在一级域名下； tomcat9 不能以.开头 // todo 修改
     public  final static String COOKIE_NAME = "mmall_login_token";
 
     public static void writeLoginToken(HttpServletResponse  response, String token) {
         Cookie cookie = new Cookie(COOKIE_NAME, token);
-        cookie.setDomain(COOKIE_DOMAIN);
+        cookie.setDomain(COOKIE_DOMAIN);        // 子域名能获取上级域名的cookie
         cookie.setPath("/");    // 设置在根目录，所有页面可获取
+        cookie.setHttpOnly(true); // 设置不许通过脚本访问cookie，无法全面保障
+
         cookie.setMaxAge(60 * 60 * 24 * 180);     // 单位秒； -1：永久； 不设置，cookie不会写入硬盘，而写入内存，只在当前页面有效
         log.info("write cookieName:{}, cookieValue:{}", cookie.getName(), cookie.getValue());
         response.addCookie(cookie);
