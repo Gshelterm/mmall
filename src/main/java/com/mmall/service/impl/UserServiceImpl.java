@@ -6,7 +6,7 @@ import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.MD5Util;
-import com.mmall.util.RedisPoolUtil;
+import com.mmall.util.RedisShardedPoolUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -105,8 +105,8 @@ public class UserServiceImpl implements IUserService {
             // 说明问题及问题答案是这个用户的，并且是正确的
             String forgetToken = UUID.randomUUID().toString();
             // 放到cache中，设置有效期; 使用token 网址用户间的横向越权，防止B用户修改A用户的密码
-            // TokenCache.setkey(TokenCache.TOKEN_PREFIX+username, forgetToken);
-            RedisPoolUtil.setex(Const.TOKEN_PREFIX+username, forgetToken, 60 * 60 * 12);
+            // 多次请求此接口，都会更新forgetToken
+            RedisShardedPoolUtil.setex(Const.TOKEN_PREFIX+username, forgetToken, 60 * 60 * 12);
             return ServerResponse.createBySuccess(forgetToken);
         }
         return ServerResponse.createByErrorMessage("问题的答案错误");
@@ -125,7 +125,7 @@ public class UserServiceImpl implements IUserService {
         }
         // 验证token
         // String token = TokenCache.getKey(TokenCache.TOKEN_PREFIX+username); 迁移到Redis缓存
-        String token = RedisPoolUtil.get(Const.TOKEN_PREFIX+username);
+        String token = RedisShardedPoolUtil.get(Const.TOKEN_PREFIX+username);
         if (org.apache.commons.lang3.StringUtils.isBlank(token)) {
             return ServerResponse.createByErrorMessage("token无效或者过期");
         }

@@ -1,14 +1,13 @@
 package com.mmall.controller.portal;
 
 import com.mmall.common.Const;
-import com.mmall.common.RedisPool;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.CookieUtil;
 import com.mmall.util.JsonUtil;
-import com.mmall.util.RedisPoolUtil;
+import com.mmall.util.RedisShardedPoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -44,7 +43,7 @@ public class UserController {
 
             // session.getId() :CAA02D1EF6F64A0B2B409D7904E6A621 ==》 登录后浏览器请求JessionId/cookie：CAA02D1EF6F64A0B2B409D7904E6A621
             // Redis缓存登录用户信息
-            RedisPoolUtil.setex(session.getId(), JsonUtil.objectToString(serverResponse.getData()),
+            RedisShardedPoolUtil.setex(session.getId(), JsonUtil.objectToString(serverResponse.getData()),
                     Const.RedisCacheExTime.REDIS_SESSION_EXTIME);
 
             // session.setAttribute(Const.CURRENT_USER, serverResponse.getData());
@@ -58,7 +57,7 @@ public class UserController {
                                          HttpServletResponse httpServletResponse) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         CookieUtil.deleteLoginToken(httpServletRequest, httpServletResponse);   // 删除浏览器端的cookie
-        RedisPoolUtil.del(loginToken);  // 删除redis里的token
+        RedisShardedPoolUtil.del(loginToken);  // 删除redis里的token
 
         // session.removeAttribute(Const.CURRENT_USER); v1.0
         return ServerResponse.createBySuccess();
@@ -85,7 +84,7 @@ public class UserController {
         if (StringUtils.isBlank(loginToken)) {
             return ServerResponse.createByErrorMessage("用户未登录， 无法获取当前用户的信息");
         }
-        String userJsonStr = RedisPoolUtil.get(loginToken);
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
         User user = JsonUtil.stringToObject(userJsonStr, User.class);
 
         if (user != null) {
@@ -122,7 +121,7 @@ public class UserController {
         if (StringUtils.isBlank(loginToken)) {
             return ServerResponse.createByErrorMessage("用户未登录， 无法获取当前用户的信息");
         }
-        String userJsonStr = RedisPoolUtil.get(loginToken);
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
         User user = JsonUtil.stringToObject(userJsonStr, User.class);
         if (user == null) {
             return ServerResponse.createByErrorMessage("用户未登录");
@@ -138,7 +137,7 @@ public class UserController {
         if (StringUtils.isBlank(loginToken)) {
             return ServerResponse.createByErrorMessage("用户未登录， 无法获取当前用户的信息");
         }
-        String userJsonStr = RedisPoolUtil.get(loginToken);
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
         User currentUser = JsonUtil.stringToObject(userJsonStr, User.class);
 
         if (currentUser == null) {
@@ -149,7 +148,7 @@ public class UserController {
         ServerResponse<User> response = userService.updateInformation(user);
         if (response.isSuccess()) {
             response.getData().setUsername(currentUser.getUsername());      //  有必要吗
-            RedisPoolUtil.setex(loginToken, JsonUtil.objectToString(response.getData()),
+            RedisShardedPoolUtil.setex(loginToken, JsonUtil.objectToString(response.getData()),
                     Const.RedisCacheExTime.REDIS_SESSION_EXTIME);
         }
 
@@ -163,7 +162,7 @@ public class UserController {
         if (StringUtils.isBlank(loginToken)) {
             return ServerResponse.createByErrorMessage("用户未登录， 无法获取当前用户的信息");
         }
-        String userJsonStr = RedisPoolUtil.get(loginToken);
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
         User currentUser = JsonUtil.stringToObject(userJsonStr, User.class);
 
         if (currentUser == null) {
