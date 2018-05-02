@@ -82,4 +82,15 @@ public class RedisShardedPoolUtil {
         return result;
     }
 
+    /**
+     * 具有原子性
+     */
+    public static String getSet(String key, String value) {
+        ShardedJedis jedis = RedisShardedPool.getJedis();
+        String result = jedis.getSet(key, value);
+
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
 }
