@@ -22,16 +22,16 @@ public class UserManageController {
     @Autowired
     private IUserService userService;
 
-    @RequestMapping(value = "login.do", method = RequestMethod.POST)
+    @RequestMapping(value = "login.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse<User> login(String username, String passwprd, HttpSession session, HttpServletResponse httpServletResponse) {
-        ServerResponse<User> response = userService.login(username, passwprd);
+    public ServerResponse<User> login(String username, String password, HttpSession session, HttpServletResponse httpServletResponse) {
+        ServerResponse<User> response = userService.login(username, password);
         if (response.isSuccess()) {
             User user = response.getData();
             if (user.getRole() == Const.Role.ROLE_ADMIN) {
                 // 说明登录的是管理员
                 CookieUtil.writeLoginToken(httpServletResponse,session.getId());
-                // 后台管理员登录, 需要session.getId()
+
                 RedisShardedPoolUtil.setex(session.getId(), JsonUtil.objectToString(response.getData()),
                         Const.RedisCacheExTime.REDIS_SESSION_EXTIME);
                 // session.setAttribute(Const.CURRENT_USER, user);

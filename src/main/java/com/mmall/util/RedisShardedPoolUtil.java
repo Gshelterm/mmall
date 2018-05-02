@@ -71,4 +71,15 @@ public class RedisShardedPoolUtil {
         System.out.println("end");
     }
 
+    /**
+     * 获取分布式锁的方法
+     */
+    public static Long setnx(String key, String value) {
+        ShardedJedis jedis = RedisShardedPool.getJedis();
+        Long result = jedis.setnx(key, value);
+
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
 }

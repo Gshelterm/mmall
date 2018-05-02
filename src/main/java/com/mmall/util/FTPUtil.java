@@ -79,6 +79,9 @@ public class FTPUtil {
         } catch (IOException e) {
             log.error("连接FTP服务器异常",e);
         }
+        if (!isSuccess) {
+            log.info("连接FTP服务器失败，检查是否启动");
+        }
         return isSuccess;
     }
 }

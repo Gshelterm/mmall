@@ -29,6 +29,7 @@ import com.mmall.vo.ShippingVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -579,5 +580,31 @@ public class OrderServiceImpl implements IOrderService {
     private Long generateOrderNo() {
         Long current = System.currentTimeMillis();
         return current+new Random().nextInt(100);
+    }
+
+    public void closeOrder(int hour) {
+        Date closeDateTime = DateUtils.addHours(new Date(), -hour);
+        List<Order> orderList = orderMapper.selectOrderStatusByCreateTime(Const.OrderStatusEnum.NO_PAY.getCode(),
+                DateTimeUtil.dateToStr(closeDateTime));
+
+        for (Order order : orderList) {
+            List<OrderItem> orderItemList = orderItemMapper.getByOrderNo(order.getOrderNo());
+            for (OrderItem orderItem : orderItemList) {
+
+                // where条件要用主键，防止表锁， innodb
+                // 这里使用Mysql(Innodb)的悲观锁for update, 需要在事务内进行，这里没有异常(无法回滚)，怎么使用事务？
+                Integer stock = productMapper.selectStockByProductId(orderItem.getProductId());
+
+                if (stock == null) {    //如果订单里的商品被删除
+                    continue;
+                }
+                Product product = new Product();
+                product.setId(orderItem.getProductId());
+                product.setStock(stock + orderItem.getQuantity());  // 返回库存
+                productMapper.updateByPrimaryKeySelective(product);
+            }
+            orderMapper.closeOrderByOrderId(order.getId());
+            log.info("关闭订单: orderNo={}", order.getOrderNo());
+        }
     }
 }

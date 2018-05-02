@@ -148,4 +148,8 @@ public class Const {
         int REDIS_SESSION_EXTIME = 60 * 30;// 30 分钟
 
     }
+
+    public interface REDIS_LOCK {
+        String CLOSE_ORDER_TASK_LOCK = "CLOSE_ORDER_TASK_LOCK";
+    }
 }
