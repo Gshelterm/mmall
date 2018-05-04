@@ -7,6 +7,10 @@ import redis.clients.util.Hashing;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Redis集群分布式版本.用来管理session
+ * ShardedJedis是通过一致性哈希来实现分布式缓存的，通过一定的策略把不同的key分配到不同的redis server上
+ */
 public class RedisShardedPool {
     private static ShardedJedisPool pool;  //Jedis连接池, static，类初始化前加载
     // 最大连接数
@@ -40,7 +44,6 @@ public class RedisShardedPool {
         jedisShardInfoList.add(info1);
         jedisShardInfoList.add(info2);
 
-        // 初始化JedisPool: 默认为true config.setBlockWhenExhausted(true); 连接耗尽时是否阻塞,true阻塞直到超时,false抛出异常
         // 初始化ShardedJedisPool： MURMUR_HASH对应一致性算法
         pool = new ShardedJedisPool(config, jedisShardInfoList, Hashing.MURMUR_HASH, ShardedJedis.DEFAULT_KEY_TAG_PATTERN);
     }
