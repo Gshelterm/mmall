@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Redis集群分布式版本.用来管理session
+ * Redis集群分布式版本.用来管理session和定时关单的分布式锁
  * ShardedJedis是通过一致性哈希来实现分布式缓存的，通过一定的策略把不同的key分配到不同的redis server上
  */
 public class RedisShardedPool {
