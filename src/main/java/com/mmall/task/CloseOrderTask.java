@@ -72,7 +72,8 @@ public class CloseOrderTask {
      * 原生实现分布式锁
      *  利用锁的值: 时间戳+超时过期时间
      */
-    @Scheduled(cron = "0 */1 * * * ?")  // 每一分钟(整数倍)执行一次
+    // @Scheduled(cron = "0 */1 * * * ?") 每一分钟(整数倍)执行一次
+    @Scheduled(cron = "0 0 0/1 * * ?")
     public void closeOrderTaskV3() {
         log.info("关闭订单定时任务启动");
 
