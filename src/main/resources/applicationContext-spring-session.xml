@@ -10,6 +10,7 @@
      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 
+    <!--spring-session 引入配置-->
     <bean id="redisHttpSessionConfiguration"
             class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
         <property name="maxInactiveIntervalInSeconds" value="1800"/>    <!--session有限期-->
@@ -26,9 +27,10 @@
         <property name="maxTotal" value="20"/>  <!--默认为DEFAULT_MAX_TOTAL=8-->
     </bean>
 
-    <!--新版本: 使用redisStandaloneConfiguration-->
+    <!--新版本: 使用redisStandaloneConfiguration
+    线上部署时未把ip改过来，报错-->
     <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
-        <property name="hostName" value="192.168.216.131"/>
+        <property name="hostName" value="127.0.0.1"/>
         <property name="port" value="6379"/>
         <property name="poolConfig" ref="jedisPoolConfig"/>
     </bean>
