@@ -58,6 +58,9 @@ public class CloseOrderTask {
         log.info("关闭订单定时任务结束");
     }
 
+    /**
+     * v2的优化
+     */
     @PreDestroy
     public void delLock() {
         RedisShardedPoolUtil.del(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
@@ -69,7 +72,7 @@ public class CloseOrderTask {
      * 原生实现分布式锁
      *  利用锁的值: 时间戳+超时过期时间
      */
-    //@Scheduled(cron = "0 */1 * * * ?")  // 每一分钟(整数倍)执行一次
+    @Scheduled(cron = "0 */1 * * * ?")  // 每一分钟(整数倍)执行一次
     public void closeOrderTaskV3() {
         log.info("关闭订单定时任务启动");
 
@@ -117,19 +120,19 @@ public class CloseOrderTask {
         log.info("获取{}, ThreadName:{}", Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK, Thread.currentThread());
         // 关闭超过hour小时未支付的订单
         int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.time.hour", "2"));
-        //orderService.closeOrder(hour);
+        orderService.closeOrder(hour);
         RedisShardedPoolUtil.del(lockName); // 释放锁
         log.info("释放{}, ThreadName:{}", Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK, Thread.currentThread());
         log.info("====================================");
     }
 
-    @Scheduled(cron = "0 */1 * * * ?")
+    //@Scheduled(cron = "0 */1 * * * ?")
     public void closeOrderTaskV4() {
         // 分布式可重入锁
         RLock lock = redissonManager.getRedisson().getLock(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK); // 锁的名字
         boolean getLock = false;
         try {
-            if (getLock = lock.tryLock(0, 50, TimeUnit.SECONDS)) {
+            if (getLock = lock.tryLock(0, 50, TimeUnit.SECONDS)) {  // timewait设置为0, 避免同时获取锁
                 log.info("Redisson获取分布式锁{}, ThreadName:{}", Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK, Thread.currentThread());
 
                 int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.time.hour", "2"));

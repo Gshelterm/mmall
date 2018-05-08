@@ -24,24 +24,24 @@
     </filter-mapping>
 
     <!--重置session时间的filter, 在原生Redis单点登录中使用-->
-    <!--<filter>-->
-        <!--<filter-name>sessionFilter</filter-name>-->
-        <!--<filter-class>com.mmall.controller.common.SessionExpireFilter</filter-class>-->
-    <!--</filter>-->
-    <!--<filter-mapping>-->
-        <!--<filter-name>sessionFilter</filter-name>-->
-        <!--<url-pattern>*.do</url-pattern>-->
-    <!--</filter-mapping>-->
-
-    <!--Spring session filter-->
     <filter>
-        <filter-name>springSessionRepositoryFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <filter-name>sessionFilter</filter-name>
+        <filter-class>com.mmall.controller.common.SessionExpireFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>springSessionRepositoryFilter</filter-name>
+        <filter-name>sessionFilter</filter-name>
         <url-pattern>*.do</url-pattern>
     </filter-mapping>
+
+    <!--Spring session filter-->
+    <!--<filter>-->
+        <!--<filter-name>springSessionRepositoryFilter</filter-name>-->
+        <!--<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>-->
+    <!--</filter>-->
+    <!--<filter-mapping>-->
+        <!--<filter-name>springSessionRepositoryFilter</filter-name>-->
+        <!--<url-pattern>*.do</url-pattern>-->
+    <!--</filter-mapping>-->
 
 
     <!--在整合spring容器时使用ContextLoaderListener,它实现了ServletContextListener监听器接口,ServletContextListener
