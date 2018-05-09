@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 public class CookieUtil {
-    public  final static String COOKIE_DOMAIN = "gimooc.com";  // 写在一级域名下； tomcat9 不能以.开头 // todo 修改
+    public  final static String COOKIE_DOMAIN = "whosshelter.com";  // 写在一级域名下； tomcat9 不能以.开头 // todo 修改
     public  final static String COOKIE_NAME = "mmall_login_token";
 
     public static void writeLoginToken(HttpServletResponse  response, String token) {
