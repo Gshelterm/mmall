@@ -39,7 +39,8 @@ public class UserController {
         ServerResponse<User> serverResponse = userService.login(username, password);
         if (serverResponse.isSuccess()) {
 
-            CookieUtil.writeLoginToken(httpServletResponse, session.getId());   // 写向浏览器的cookie
+            // 写向浏览器的cookie, 将此cookie作为实际的cookie
+            CookieUtil.writeLoginToken(httpServletResponse, session.getId());
 
             // session.getId() :CAA02D1EF6F64A0B2B409D7904E6A621 ==》 登录后浏览器请求JessionId/cookie：CAA02D1EF6F64A0B2B409D7904E6A621
             // Redis缓存登录用户信息
